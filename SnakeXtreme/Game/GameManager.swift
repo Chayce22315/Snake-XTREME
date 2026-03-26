@@ -15,8 +15,8 @@ class GameManager {
     }
     
     private func checkFoodCollision() {
-        if snake.head.frame.intersects(food.node.frame) {
-            // handle food eaten
+        if snake.head?.frame.intersects(food.node.frame) == true {
+            // collision logic if needed
         }
     }
 }
