@@ -2,10 +2,17 @@ import SpriteKit
 
 class Food {
     var node: SKShapeNode
-    
-    init(position: CGPoint, radius: CGFloat = 10) {
-        node = SKShapeNode(circleOfRadius: radius)
-        node.fillColor = .gray
-        node.position = position
+
+    init() {
+        node = SKShapeNode(circleOfRadius: 10)
+        node.fillColor = .red
+        node.position = CGPoint(x: 200, y: 200)
+    }
+
+    func respawn() {
+        node.position = CGPoint(
+            x: CGFloat.random(in: 20...380),
+            y: CGFloat.random(in: 20...780)
+        )
     }
 }
