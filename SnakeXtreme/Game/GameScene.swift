@@ -17,7 +17,13 @@ class GameScene: SKScene {
         spawnFood()
         
         // movement timer
-        moveTimer = Timer.scheduledTimer(timeInterval: 0.3, target: self, selector: #selector(updateSnake), userInfo: nil, repeats: true)
+        moveTimer = Timer.scheduledTimer(
+            timeInterval: 0.3,
+            target: self,
+            selector: #selector(updateSnake),
+            userInfo: nil,
+            repeats: true
+        )
     }
 
     // MARK: - Food Spawning
@@ -39,25 +45,29 @@ class GameScene: SKScene {
         }
 
         guard let position = emptyPositions.randomElement() else { return }
-        food?.removeFromParent()
-        food = Food(position: position)
-        addChild(food)
+
+        // ✅ FIX: Food uses node
+        food?.node.removeFromParent()
+        food = Food()
+        food.node.position = position
+        addChild(food.node)
     }
 
     // MARK: - Snake Update
     @objc func updateSnake() {
         snake.move()
         
-        // check food collision
-        if let headPos = snake.head?.position, headPos == food.position {
+        // ✅ FIX: use food.node.position
+        if let headPos = snake.head?.position,
+           headPos == food.node.position {
             snake.grow()
             spawnFood()
         }
         
-        // check wall/self collision
+        // collision (walls + self)
         if snake.checkCollision(bounds: frame) {
             moveTimer?.invalidate()
-            // TODO: handle death/reset
+            snake.die()
         }
         
         // re-add segments if removed
@@ -68,7 +78,9 @@ class GameScene: SKScene {
 
     // MARK: - Touch Controls
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first, let head = snake.head else { return }
+        guard let touch = touches.first,
+              let head = snake.head else { return }
+
         let location = touch.location(in: self)
         let dx = location.x - head.position.x
         let dy = location.y - head.position.y
