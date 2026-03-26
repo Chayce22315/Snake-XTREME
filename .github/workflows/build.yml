@@ -1,44 +1,55 @@
-name: SnakeXtreme Build
+name: Build SnakeXtreme
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-latest
+
     steps:
-      # 1️⃣ checkout code
-      - uses: actions/checkout@v4
+      # 1️⃣ checkout repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # important for full repo
 
-      # 2️⃣ install xcodegen
-      - run: brew install xcodegen
+      # 2️⃣ clean derived data
+      - name: Clean Derived Data
+        run: rm -rf ~/Library/Developer/Xcode/DerivedData/*
 
-      # 3️⃣ generate Xcode project
-      - run: xcodegen generate
+      # 3️⃣ set plist path if needed
+      - name: Confirm Info.plist exists
+        run: |
+          if [ ! -f SnakeXtreme/Info.plist ]; then
+            echo "Info.plist not found! Check path in project."
+            exit 1
+          fi
 
-      # 4️⃣ create build folder
-      - run: mkdir -p build
+      # 4️⃣ build & archive
+      - name: Build & Archive
+        run: |
+          xcodebuild \
+            -project SnakeXtreme.xcodeproj \
+            -scheme SnakeXtreme \
+            -configuration Release \
+            -archivePath $PWD/build/SnakeXtreme.xcarchive \
+            archive
 
-      # 5️⃣ archive project (unsigned)
-      - run: |
-          xcodebuild -scheme SnakeXtreme \
-                     -sdk iphoneos \
-                     -configuration Release \
-                     -archivePath build/SnakeXtreme.xcarchive \
-                     archive \
-                     CODE_SIGNING_ALLOWED=NO
-
-      # 6️⃣ export IPA
-      - run: |
+      # 5️⃣ export IPA
+      - name: Export IPA
+        run: |
           xcodebuild -exportArchive \
-                     -archivePath build/SnakeXtreme.xcarchive \
-                     -exportPath build/SnakeXtreme.ipa \
-                     -exportOptionsPlist exportOptions.plist
+            -archivePath $PWD/build/SnakeXtreme.xcarchive \
+            -exportPath $PWD/build/SnakeXtreme \
+            -exportOptionsPlist SnakeXtreme/ExportOptions.plist
 
-      # 7️⃣ upload IPA artifact
-      - uses: actions/upload-artifact@v4
+      # 6️⃣ upload IPA as artifact
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
         with:
           name: SnakeXtreme.ipa
-          path: build/SnakeXtreme.ipa
+          path: build/SnakeXtreme/*.ipa
