@@ -1,21 +1,44 @@
-name: build
+name: SnakeXtreme Build
+
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+
 jobs:
   build:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v4
-    - run: brew install xcodegen
-    - run: xcodegen generate
-    - run: |
-        xcodebuild -scheme SnakeXtreme -sdk iphoneos -configuration Release -archivePath build/SnakeXtreme.xcarchive archive
-        xcodebuild -exportArchive -archivePath build/SnakeXtreme.xcarchive -exportOptionsPlist exportOptions.plist -exportPath build
-    - run: |
-        cd build
-        zip -r SnakeXtreme.ipa.zip *.ipa
-    - uses: actions/upload-artifact@v4
-      with:
-        name: SnakeXtreme-IPA
-        path: build/SnakeXtreme.ipa.zip
+      # 1️⃣ checkout code
+      - uses: actions/checkout@v4
+
+      # 2️⃣ install xcodegen
+      - run: brew install xcodegen
+
+      # 3️⃣ generate Xcode project
+      - run: xcodegen generate
+
+      # 4️⃣ create build folder
+      - run: mkdir -p build
+
+      # 5️⃣ archive project (unsigned)
+      - run: |
+          xcodebuild -scheme SnakeXtreme \
+                     -sdk iphoneos \
+                     -configuration Release \
+                     -archivePath build/SnakeXtreme.xcarchive \
+                     archive \
+                     CODE_SIGNING_ALLOWED=NO
+
+      # 6️⃣ export IPA
+      - run: |
+          xcodebuild -exportArchive \
+                     -archivePath build/SnakeXtreme.xcarchive \
+                     -exportPath build/SnakeXtreme.ipa \
+                     -exportOptionsPlist exportOptions.plist
+
+      # 7️⃣ upload IPA artifact
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SnakeXtreme.ipa
+          path: build/SnakeXtreme.ipa
