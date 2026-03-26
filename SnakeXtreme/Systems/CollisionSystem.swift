@@ -1,36 +1,32 @@
 import SpriteKit
 
 class CollisionSystem {
-    let snake: Snake
-    let food: Food
-    let obstacles: [Obstacle]
 
-    init(snake: Snake, food: Food, obstacles: [Obstacle]) {
-        self.snake = snake
-        self.food = food
-        self.obstacles = obstacles
-    }
-
-    func checkCollisions() {
+    func check(
+        snake: Snake,
+        food: Food,
+        in scene: SKScene,
+        scoreUpdate: () -> Void,
+        gameOver: () -> Void
+    ) {
         guard let head = snake.head else { return }
 
-        // FOOD COLLISION
-        if head.frame.intersects(food.node.frame) {
+        // 🍎 FOOD COLLISION
+        if head.frame.intersects(food.frame) {
             snake.grow()
-            food.respawn()
+            food.respawn(in: scene, avoiding: snake.body)
+            scoreUpdate()
         }
 
-        // OBSTACLE COLLISION
-        for obstacle in obstacles {
-            if head.frame.intersects(obstacle.node.frame) {
-                snake.die()
-            }
+        // 💀 WALL COLLISION
+        if !scene.frame.contains(head.position) {
+            gameOver()
         }
 
-        // SELF COLLISION
+        // 🐍 SELF COLLISION
         for segment in snake.body.dropFirst() {
-            if head.frame.intersects(segment.frame) {
-                snake.die()
+            if head.position == segment.position {
+                gameOver()
             }
         }
     }
