@@ -1,8 +1,11 @@
 import SpriteKit
 
 class Snake {
+    static let blockSize: CGFloat = 32
+    
     var body: [SKShapeNode] = []
     var scene: SKScene?
+    var direction = CGVector(dx: 32, dy: 0)
 
     var head: SKShapeNode? {
         return body.first
@@ -11,15 +14,15 @@ class Snake {
     init(scene: SKScene) {
         self.scene = scene
 
-        let head = SKShapeNode(rectOf: CGSize(width: 20, height: 20))
+        let head = SKShapeNode(rectOf: CGSize(width: 28, height: 28))
         head.fillColor = .green
-        head.position = CGPoint(x: 100, y: 100)
+        head.position = CGPoint(x: 160, y: 160)
 
         body.append(head)
         scene.addChild(head)
     }
 
-    func move(by direction: CGVector) {
+    func move() {
         guard let head = head else { return }
 
         let newPosition = CGPoint(
@@ -27,7 +30,7 @@ class Snake {
             y: head.position.y + direction.dy
         )
 
-        var previousPositions: [CGPoint] = body.map { $0.position }
+        let previousPositions = body.map { $0.position }
 
         body[0].position = newPosition
 
@@ -39,7 +42,7 @@ class Snake {
     func grow() {
         guard let last = body.last else { return }
 
-        let newSegment = SKShapeNode(rectOf: CGSize(width: 20, height: 20))
+        let newSegment = SKShapeNode(rectOf: CGSize(width: 28, height: 28))
         newSegment.fillColor = .green
         newSegment.position = last.position
 
@@ -55,5 +58,23 @@ class Snake {
         }
 
         body.removeAll()
+    }
+
+    func checkCollision(bounds: CGRect) -> Bool {
+        guard let head = head else { return false }
+
+        // wall collision
+        if !bounds.contains(head.position) {
+            return true
+        }
+
+        // self collision
+        for segment in body.dropFirst() {
+            if head.position == segment.position {
+                return true
+            }
+        }
+
+        return false
     }
 }
