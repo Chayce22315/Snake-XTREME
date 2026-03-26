@@ -5,15 +5,22 @@ class GameScene: SKScene {
     var food: Food!
     var moveTimer: Timer?
 
+    // MARK: - Scene Setup
     override func didMove(to view: SKView) {
         backgroundColor = .black
+        
+        // add snake segments
         for segment in snake.body {
             addChild(segment)
         }
+        
         spawnFood()
+        
+        // movement timer
         moveTimer = Timer.scheduledTimer(timeInterval: 0.3, target: self, selector: #selector(updateSnake), userInfo: nil, repeats: true)
     }
 
+    // MARK: - Food Spawning
     func spawnFood() {
         let cols = Int(size.width / Snake.blockSize)
         let rows = Int(size.height / Snake.blockSize)
@@ -21,8 +28,10 @@ class GameScene: SKScene {
         var emptyPositions: [CGPoint] = []
         for col in 0..<cols {
             for row in 0..<rows {
-                let pos = CGPoint(x: CGFloat(col) * Snake.blockSize + Snake.blockSize/2,
-                                  y: CGFloat(row) * Snake.blockSize + Snake.blockSize/2)
+                let pos = CGPoint(
+                    x: CGFloat(col) * Snake.blockSize + Snake.blockSize/2,
+                    y: CGFloat(row) * Snake.blockSize + Snake.blockSize/2
+                )
                 if !snake.body.contains(where: { $0.position == pos }) {
                     emptyPositions.append(pos)
                 }
@@ -35,25 +44,32 @@ class GameScene: SKScene {
         addChild(food)
     }
 
+    // MARK: - Snake Update
     @objc func updateSnake() {
         snake.move()
-        if snake.body.first?.position == food.position {
+        
+        // check food collision
+        if let headPos = snake.head?.position, headPos == food.position {
             snake.grow()
             spawnFood()
         }
+        
+        // check wall/self collision
         if snake.checkCollision(bounds: frame) {
             moveTimer?.invalidate()
-            // show death or reset
+            // TODO: handle death/reset
         }
-        for segment in snake.body {
-            if segment.parent == nil { addChild(segment) }
+        
+        // re-add segments if removed
+        for segment in snake.body where segment.parent == nil {
+            addChild(segment)
         }
     }
 
+    // MARK: - Touch Controls
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let touch = touches.first else { return }
+        guard let touch = touches.first, let head = snake.head else { return }
         let location = touch.location(in: self)
-        let head = snake.body.first!
         let dx = location.x - head.position.x
         let dy = location.y - head.position.y
 
