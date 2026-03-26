@@ -1,14 +1,11 @@
 import SpriteKit
 
 class Obstacle {
-    let node: SKSpriteNode
-
-    init(position: CGPoint, size: CGSize, color: SKColor = .gray) {
-        node = SKSpriteNode(color: color, size: size)
+    var node: SKShapeNode
+    
+    init(position: CGPoint, size: CGSize) {
+        node = SKShapeNode(rectOf: size)
+        node.fillColor = .gray
         node.position = position
-    }
-
-    func addToScene(_ scene: SKScene) {
-        scene.addChild(node)
     }
 }
