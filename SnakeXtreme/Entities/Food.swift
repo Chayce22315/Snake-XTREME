@@ -1,8 +1,11 @@
-class Food {
-    let node: SKSpriteNode
+import SpriteKit
 
-    init(position: CGPoint) {
-        node = SKSpriteNode(color: .red, size: CGSize(width: 10, height: 10))
+class Food {
+    var node: SKShapeNode
+    
+    init(position: CGPoint, radius: CGFloat = 10) {
+        node = SKShapeNode(circleOfRadius: radius)
+        node.fillColor = .gray
         node.position = position
     }
 }
