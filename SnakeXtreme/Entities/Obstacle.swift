@@ -4,7 +4,7 @@ class Obstacle{
  func spawn(in s:SKScene){
   for _ in 0..<5{
    let o=SKShapeNode(rectOf:CGSize(width:30,height:30))
-   o.fillColor=.gray
+   o.fillColor = .gray
    o.position=random(s)
    s.addChild(o)
    nodes.append(o)
