@@ -1,10 +1,10 @@
-name: iOS Build SnakeXtreme
+name: Build SnakeXtreme
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,46 +14,26 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v4
 
-    - name: Install Ruby & CocoaPods
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: 3.2
-
-    - name: Install Bundler
-      run: gem install bundler
-
-    - name: Install CocoaPods
-      run: pod install --repo-update || echo "No Podfile found, skipping"
-
-    - name: Install XcodeGen
-      run: brew install xcodegen
+    - name: Install dependencies
+      run: |
+        brew install xcodegen
+        # ruby/cocoapods optional if you need them for other projects
 
     - name: Generate Xcode project
       run: xcodegen generate --spec project.yml
 
-    - name: Build & Archive
+    - name: Build archive (no signing)
       run: |
         mkdir -p build
-        xcodebuild archive \
-          -project SnakeXtreme.xcodeproj \
-          -scheme SnakeXtreme \
-          -configuration Release \
-          -archivePath build/SnakeXtreme.xcarchive \
-          DEVELOPMENT_TEAM="" \
-          CODE_SIGNING_ALLOWED=NO \
-          CODE_SIGNING_REQUIRED=NO \
-          CODE_SIGN_IDENTITY="" \
-          INFOPLIST_FILE=SnakeXtreme/Info.plist
+        xcodebuild -project SnakeXtreme.xcodeproj \
+                   -scheme SnakeXtreme \
+                   -configuration Release \
+                   -archivePath $GITHUB_WORKSPACE/build/SnakeXtreme.xcarchive \
+                   archive \
+                   CODE_SIGNING_ALLOWED=NO
 
-    - name: Export IPA
-      run: |
-        xcodebuild -exportArchive \
-          -archivePath build/SnakeXtreme.xcarchive \
-          -exportPath build/ipa \
-          -exportOptionsPlist exportOptions.plist
-
-    - name: Upload IPA as artifact
+    - name: Upload .app artifact
       uses: actions/upload-artifact@v4
       with:
-        name: SnakeXtreme-IPA
-        path: build/ipa/*.ipa
+        name: SnakeXtreme.app
+        path: build/SnakeXtreme.xcarchive/Products/Applications/SnakeXtreme.app
