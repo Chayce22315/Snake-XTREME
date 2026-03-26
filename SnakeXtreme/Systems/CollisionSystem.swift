@@ -13,31 +13,29 @@ class CollisionSystem {
         self.obstacles = obstacles
     }
 
-    // call this every frame
     func update() {
         checkFoodCollision()
         checkObstacleCollisions()
     }
 
-    // MARK: - Food Collision
     private func checkFoodCollision() {
-        guard let snakeHead = snake.head else { return }
-        guard let foodNode = food.node else { return }
-
-        if snakeHead.frame.intersects(foodNode.frame) {
-            snake.eat(food: food)
+        // optional chain because snake.head might be nil
+        if let snakeHead = snake.head {
+            if snakeHead.frame.intersects(food.node.frame) {
+                // handle collision in snake/game manager
+                snake.consume(food: food) // replace with your actual method
+            }
         }
     }
 
-    // MARK: - Obstacle Collision
     private func checkObstacleCollisions() {
         guard let snakeHead = snake.head else { return }
 
         for obstacle in obstacles {
-            guard let obstacleNode = obstacle.node else { continue }
-
-            if snakeHead.frame.intersects(obstacleNode.frame) {
-                snake.hitObstacle(obstacle)
+            // directly use SKShapeNode, no 'guard let'
+            if snakeHead.frame.intersects(obstacle.node.frame) {
+                // handle collision in snake/game manager
+                snake.collide(with: obstacle) // replace with your actual method
             }
         }
     }
