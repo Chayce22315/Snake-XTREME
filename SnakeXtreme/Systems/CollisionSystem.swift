@@ -1,51 +1,73 @@
 import SpriteKit
 
-class CollisionSystem {
+// MARK: - Snake
 
-    let snake: Snake
-    let food: Food
-    let obstacles: [Obstacle]
-    let powerUps: [PowerUp]
+class Snake {
+    var head: SKShapeNode?      // snake's head
+    var body: [SKShapeNode] = [] // snake segments
 
-    init(snake: Snake, food: Food, obstacles: [Obstacle], powerUps: [PowerUp]) {
-        self.snake = snake
-        self.food = food
-        self.obstacles = obstacles
-        self.powerUps = powerUps
+    init(head: SKShapeNode?) {
+        self.head = head
+        if let h = head { body.append(h) }
     }
 
-    func checkCollisions() {
-        // snake & food
-        if let head = snake.head, let foodNode = food.node, head.frame.intersects(foodNode.frame) {
-            snake.eat(food: food)
-            food.spawnNewFood()
-        }
+    func eat(food: Food) {
+        // placeholder: logic when snake eats food
+        print("snake ate food!")
+    }
 
-        // snake & obstacles
-        for obstacle in obstacles {
-            if let head = snake.head, let obstacleNode = obstacle.node, head.frame.intersects(obstacleNode.frame) {
-                snake.hitObstacle(obstacle)
-                // you can break here if snake dies on first hit
-                break
-            }
-        }
+    func hitObstacle(_ obstacle: Obstacle) {
+        // placeholder: logic when snake hits obstacle
+        print("snake hit obstacle!")
+    }
 
-        // snake & power-ups
-        for powerUp in powerUps {
-            if let head = snake.head, let powerNode = powerUp.node, head.frame.intersects(powerNode.frame) {
-                snake.collect(powerUp: powerUp)
-                powerUp.removeFromScene()
-            }
-        }
+    func hitSelf() {
+        // placeholder: logic when snake collides with itself
+        print("snake hit itself!")
+    }
 
-        // optional: snake colliding with itself
-        if let head = snake.head {
-            for segment in snake.body.dropFirst() { // skip head
-                if let segmentNode = segment.node, head.frame.intersects(segmentNode.frame) {
-                    snake.hitSelf()
-                    break
-                }
-            }
-        }
+    func collect(powerUp: PowerUp) {
+        // placeholder: logic when snake collects a power-up
+        print("snake collected a power-up!")
+    }
+}
+
+// MARK: - Food
+
+class Food {
+    var node: SKShapeNode?
+
+    init(node: SKShapeNode?) {
+        self.node = node
+    }
+
+    func spawnNewFood() {
+        // placeholder: spawn logic
+        print("new food spawned")
+    }
+}
+
+// MARK: - Obstacle
+
+class Obstacle {
+    var node: SKShapeNode?
+
+    init(node: SKShapeNode?) {
+        self.node = node
+    }
+}
+
+// MARK: - PowerUp
+
+class PowerUp {
+    var node: SKShapeNode?
+
+    init(node: SKShapeNode?) {
+        self.node = node
+    }
+
+    func removeFromScene() {
+        // placeholder: remove from parent node
+        print("power-up removed")
     }
 }
