@@ -5,18 +5,14 @@ class GameScene: SKScene {
     var food: Food!
     var moveTimer: Timer?
 
-    // MARK: - Scene Setup
     override func didMove(to view: SKView) {
         backgroundColor = .black
-        
-        // add snake segments
-        for segment in snake.body {
-            addChild(segment)
-        }
-        
+
+        // ✅ correct init
+        snake = Snake(scene: self)
+
         spawnFood()
-        
-        // movement timer
+
         moveTimer = Timer.scheduledTimer(
             timeInterval: 0.3,
             target: self,
@@ -32,12 +28,13 @@ class GameScene: SKScene {
         let rows = Int(size.height / Snake.blockSize)
 
         var emptyPositions: [CGPoint] = []
+
         for col in 0..<cols {
             for row in 0..<rows {
-                let pos = CGPoint(
-                    x: CGFloat(col) * Snake.blockSize + Snake.blockSize/2,
-                    y: CGFloat(row) * Snake.blockSize + Snake.blockSize/2
-                )
+                let x = CGFloat(col) * Snake.blockSize + Snake.blockSize / 2
+                let y = CGFloat(row) * Snake.blockSize + Snake.blockSize / 2
+                let pos = CGPoint(x: x, y: y)
+
                 if !snake.body.contains(where: { $0.position == pos }) {
                     emptyPositions.append(pos)
                 }
@@ -46,33 +43,25 @@ class GameScene: SKScene {
 
         guard let position = emptyPositions.randomElement() else { return }
 
-        // ✅ FIX: Food uses node
         food?.node.removeFromParent()
         food = Food()
         food.node.position = position
         addChild(food.node)
     }
 
-    // MARK: - Snake Update
+    // MARK: - Game Loop
     @objc func updateSnake() {
         snake.move()
-        
-        // ✅ FIX: use food.node.position
+
         if let headPos = snake.head?.position,
            headPos == food.node.position {
             snake.grow()
             spawnFood()
         }
-        
-        // collision (walls + self)
+
         if snake.checkCollision(bounds: frame) {
             moveTimer?.invalidate()
             snake.die()
-        }
-        
-        // re-add segments if removed
-        for segment in snake.body where segment.parent == nil {
-            addChild(segment)
         }
     }
 
@@ -86,9 +75,15 @@ class GameScene: SKScene {
         let dy = location.y - head.position.y
 
         if abs(dx) > abs(dy) {
-            snake.direction = CGVector(dx: dx > 0 ? 1 : -1, dy: 0)
+            snake.direction = CGVector(
+                dx: dx > 0 ? Snake.blockSize : -Snake.blockSize,
+                dy: 0
+            )
         } else {
-            snake.direction = CGVector(dx: 0, dy: dy > 0 ? 1 : -1)
+            snake.direction = CGVector(
+                dx: 0,
+                dy: dy > 0 ? Snake.blockSize : -Snake.blockSize
+            )
         }
     }
 }
