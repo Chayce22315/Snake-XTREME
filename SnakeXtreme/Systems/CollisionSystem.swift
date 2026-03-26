@@ -1,73 +1,44 @@
 import SpriteKit
+import Foundation
 
-// MARK: - Snake
+class CollisionSystem {
 
-class Snake {
-    var head: SKShapeNode?      // snake's head
-    var body: [SKShapeNode] = [] // snake segments
+    var snake: Snake
+    var food: Food
+    var obstacles: [Obstacle]
 
-    init(head: SKShapeNode?) {
-        self.head = head
-        if let h = head { body.append(h) }
+    init(snake: Snake, food: Food, obstacles: [Obstacle] = []) {
+        self.snake = snake
+        self.food = food
+        self.obstacles = obstacles
     }
 
-    func eat(food: Food) {
-        // placeholder: logic when snake eats food
-        print("snake ate food!")
+    // call this every frame
+    func update() {
+        checkFoodCollision()
+        checkObstacleCollisions()
     }
 
-    func hitObstacle(_ obstacle: Obstacle) {
-        // placeholder: logic when snake hits obstacle
-        print("snake hit obstacle!")
+    // MARK: - Food Collision
+    private func checkFoodCollision() {
+        guard let snakeHead = snake.head else { return }
+        guard let foodNode = food.node else { return }
+
+        if snakeHead.frame.intersects(foodNode.frame) {
+            snake.eat(food: food)
+        }
     }
 
-    func hitSelf() {
-        // placeholder: logic when snake collides with itself
-        print("snake hit itself!")
-    }
+    // MARK: - Obstacle Collision
+    private func checkObstacleCollisions() {
+        guard let snakeHead = snake.head else { return }
 
-    func collect(powerUp: PowerUp) {
-        // placeholder: logic when snake collects a power-up
-        print("snake collected a power-up!")
-    }
-}
+        for obstacle in obstacles {
+            guard let obstacleNode = obstacle.node else { continue }
 
-// MARK: - Food
-
-class Food {
-    var node: SKShapeNode?
-
-    init(node: SKShapeNode?) {
-        self.node = node
-    }
-
-    func spawnNewFood() {
-        // placeholder: spawn logic
-        print("new food spawned")
-    }
-}
-
-// MARK: - Obstacle
-
-class Obstacle {
-    var node: SKShapeNode?
-
-    init(node: SKShapeNode?) {
-        self.node = node
-    }
-}
-
-// MARK: - PowerUp
-
-class PowerUp {
-    var node: SKShapeNode?
-
-    init(node: SKShapeNode?) {
-        self.node = node
-    }
-
-    func removeFromScene() {
-        // placeholder: remove from parent node
-        print("power-up removed")
+            if snakeHead.frame.intersects(obstacleNode.frame) {
+                snake.hitObstacle(obstacle)
+            }
+        }
     }
 }
