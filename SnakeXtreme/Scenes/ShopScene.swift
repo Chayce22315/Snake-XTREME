@@ -1,21 +1,52 @@
 import SpriteKit
-class ShopScene:SKScene{
- let trails=[("fire",50),("neon",100),("toxic",150),("rainbow",300),("lightning",500)]
- override func didMove(to view:SKView){backgroundColor=.darkGray;drawUI()}
- func drawUI(){
-  var y=frame.height-100
-  for (id,cost) in trails{
-   let btn=SKLabelNode(text:"\(id.uppercased()) - \(cost) coins");btn.position=CGPoint(x:frame.midX,y:y);btn.name=id;btn.fontName="Menlo-Bold";btn.fontSize=28;addChild(btn);y-=60
-  }
-  let coinsLabel=SKLabelNode(text:"Coins: \(GameManager.shared.coins)");coinsLabel.position=CGPoint(x: frame.midX,y:50);coinsLabel.fontName="Menlo-Bold";coinsLabel.fontSize=28;addChild(coinsLabel)
- }
- override func touchesEnded(_ touches:Set<UITouch>,with event:UIEvent?){
-  guard let t=touches.first else{return};let n=atPoint(t.location(in:self))
-  guard let id=n.name else{return}
-  if let trail=trails.first(where:{$0.0==id}){
-   let success=GameManager.shared.buyTrail(id:id,cost:trail.1)
-   GameManager.shared.equipTrail(id:id)
-   removeAllChildren();drawUI()
-  }
- }
+
+class ShopScene: SKScene {
+
+    override func didMove(to view: SKView) {
+        backgroundColor = .darkGray
+
+        let title = SKLabelNode(text: "SHOP")
+        title.fontName = "Chalkduster"
+        title.fontSize = 120
+        title.fontColor = .white
+        title.position = CGPoint(x: size.width/2, y: size.height*0.8)
+        addChild(title)
+
+        // example trails
+        let trailNames = ["Green Trail", "Red Trail", "Blue Trail"]
+        for (i, name) in trailNames.enumerated() {
+            let button = SKLabelNode(text: name)
+            button.fontName = "Chalkduster"
+            button.fontSize = 80
+            button.fontColor = .yellow
+            button.position = CGPoint(x: size.width/2, y: size.height*0.6 - CGFloat(i)*120)
+            button.name = "trail_\(i)"
+            addChild(button)
+        }
+
+        let backButton = SKLabelNode(text: "BACK")
+        backButton.fontName = "Chalkduster"
+        backButton.fontSize = 90
+        backButton.fontColor = .white
+        backButton.position = CGPoint(x: size.width/2, y: 100)
+        backButton.name = "backButton"
+        addChild(backButton)
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        let nodesAtPoint = nodes(at: location)
+        for node in nodesAtPoint {
+            if let name = node.name {
+                if name.starts(with: "trail_") {
+                    // buy/select trail logic
+                } else if name == "backButton" {
+                    let scene = MainMenuScene(size: size)
+                    scene.scaleMode = .aspectFill
+                    view?.presentScene(scene, transition: .flipVertical(withDuration: 0.5))
+                }
+            }
+        }
+    }
 }
