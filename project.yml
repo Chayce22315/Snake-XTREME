@@ -1,12 +1,25 @@
 name: SnakeXtreme
 options:
-  bundleIdPrefix: com.pixelatedstudios
+  bundleIdPrefix: com.pixelatedstudios.sx
+  deploymentTarget:
+    iOS: '18.0'
+
+configs:
+  Debug:
+    buildSettings:
+      SWIFT_OPTIMIZATION_LEVEL: '-Onone'
+  Release:
+    buildSettings:
+      SWIFT_OPTIMIZATION_LEVEL: '-O'
+
 targets:
   SnakeXtreme:
     type: application
     platform: iOS
-    sources: [SnakeXtreme]
-    settings:
-      PRODUCT_BUNDLE_IDENTIFIER: com.pixelatedstudios.sX
-      CODE_SIGN_STYLE: Manual
-      DEVELOPMENT_TEAM: ""  # empty for now, will skip signing
+    deploymentTarget: '18.0'
+    sources: [SnakeXtreme]         # your source folder
+    info: SnakeXtreme/Info.plist   # <- points directly to your plist
+    buildSettings:
+      CODE_SIGNING_ALLOWED: NO     # disables signing
+      CODE_SIGN_IDENTITY: ""
+      INFOPLIST_FILE: SnakeXtreme/Info.plist
