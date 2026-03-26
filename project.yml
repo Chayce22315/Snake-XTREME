@@ -1,9 +1,6 @@
 name: SnakeXtreme
 options:
   bundleIdPrefix: com.pixelatedstudios
-  deploymentTarget: '16.0'
-  buildSettings:
-    SWIFT_VERSION: 5.8
 targets:
   SnakeXtreme:
     type: application
@@ -11,6 +8,5 @@ targets:
     sources: [SnakeXtreme]
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: com.pixelatedstudios.sX
-      CODE_SIGN_STYLE: OFF
-      ENABLE_BITCODE: NO
-      SWIFT_OPTIMIZATION_LEVEL: -O
+      CODE_SIGN_STYLE: Manual
+      DEVELOPMENT_TEAM: ""  # empty for now, will skip signing
