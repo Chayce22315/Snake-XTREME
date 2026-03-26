@@ -1,51 +1,59 @@
-name: Build SnakeXtreme
+name: iOS Build SnakeXtreme
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: macos-latest
 
     steps:
-      # 1️⃣ get the code
-      - name: Checkout repo
-        uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
-      # 2️⃣ install xcodegen
-      - name: Install XcodeGen
-        run: brew install xcodegen
+    - name: Install Ruby & CocoaPods
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.2
 
-      # 3️⃣ generate the Xcode project
-      - name: Generate Xcode project
-        run: |
-          xcodegen generate --spec "${{ github.workspace }}/project.yml" --quiet
+    - name: Install Bundler
+      run: gem install bundler
 
-      # 4️⃣ build & archive
-      - name: Build & Archive
-        run: |
-          mkdir -p build
-          xcodebuild archive \
-            -project "${{ github.workspace }}/SnakeXtreme.xcodeproj" \
-            -scheme "SnakeXtreme" \
-            -configuration Release \
-            -archivePath "${{ github.workspace }}/build/SnakeXtreme.xcarchive" \
-            INFOPLIST_FILE="${{ github.workspace }}/SnakeXtreme/Info.plist"
+    - name: Install CocoaPods
+      run: pod install --repo-update || echo "No Podfile found, skipping"
 
-      # 5️⃣ export ipa
-      - name: Export IPA
-        run: |
-          xcodebuild -exportArchive \
-            -archivePath "${{ github.workspace }}/build/SnakeXtreme.xcarchive" \
-            -exportPath "${{ github.workspace }}/build" \
-            -exportOptionsPlist "${{ github.workspace }}/ExportOptions.plist"
+    - name: Install XcodeGen
+      run: brew install xcodegen
 
-      # 6️⃣ upload ipa as artifact
-      - name: Upload IPA
-        uses: actions/upload-artifact@v4
-        with:
-          name: SnakeXtreme.ipa
-          path: "${{ github.workspace }}/build/SnakeXtreme.ipa"
+    - name: Generate Xcode project
+      run: xcodegen generate --spec project.yml
+
+    - name: Build & Archive
+      run: |
+        mkdir -p build
+        xcodebuild archive \
+          -project SnakeXtreme.xcodeproj \
+          -scheme SnakeXtreme \
+          -configuration Release \
+          -archivePath build/SnakeXtreme.xcarchive \
+          DEVELOPMENT_TEAM="" \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGN_IDENTITY="" \
+          INFOPLIST_FILE=SnakeXtreme/Info.plist
+
+    - name: Export IPA
+      run: |
+        xcodebuild -exportArchive \
+          -archivePath build/SnakeXtreme.xcarchive \
+          -exportPath build/ipa \
+          -exportOptionsPlist exportOptions.plist
+
+    - name: Upload IPA as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: SnakeXtreme-IPA
+        path: build/ipa/*.ipa
