@@ -1,15 +1,14 @@
 import SpriteKit
-class CollisionSystem{
- func food(snake:Snake,food:Food)->Bool{
-  guard let h=snake.body.first else{return false}
-  return h.frame.intersects(food.node.frame)
- }
- func wall(_ h:SKShapeNode,_ s:SKScene)->Bool{
-  h.position.x<0||h.position.x>s.frame.width||
-  h.position.y<0||h.position.y>s.frame.height
- }
- func obstacle(_ h:SKShapeNode,_ o:Obstacle)->Bool{
-  for n in o.nodes{ if h.frame.intersects(n.frame){ return true } }
-  return false
- }
+
+class CollisionSystem {
+
+    // checks if a given frame intersects with a Food instance
+    static func intersects(frame: CGRect, food: Food) -> Bool {
+        return frame.intersects(food.node.frame)
+    }
+
+    // optional: check collision between two obstacles
+    static func intersects(obstacle1: Obstacle, obstacle2: Obstacle) -> Bool {
+        return obstacle1.node.frame.intersects(obstacle2.node.frame)
+    }
 }
