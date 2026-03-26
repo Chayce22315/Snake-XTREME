@@ -1,64 +1,66 @@
 import SpriteKit
 
-class GameScene:SKScene{
+class GameScene: SKScene {
+    let snake = Snake(startPosition: CGPoint(x: 512, y: 512))
+    var food: Food!
+    var moveTimer: Timer?
 
- let snake=Snake()
- let food=Food()
- let obs=Obstacle()
- let col=CollisionSystem()
- let power=PowerUpSystem()
- let trail=TrailSystem()
+    override func didMove(to view: SKView) {
+        backgroundColor = .black
+        for segment in snake.body {
+            addChild(segment)
+        }
+        spawnFood()
+        moveTimer = Timer.scheduledTimer(timeInterval: 0.3, target: self, selector: #selector(updateSnake), userInfo: nil, repeats: true)
+    }
 
- var timer:Timer?
+    func spawnFood() {
+        let cols = Int(size.width / Snake.blockSize)
+        let rows = Int(size.height / Snake.blockSize)
 
- override func didMove(to view:SKView){
-  backgroundColor=.black
-  snake.spawn(in:self)
-  food.spawn(in:self)
-  obs.spawn(in:self)
-  trail.attach(to:snake.body.first!)
-  start()
- }
+        var emptyPositions: [CGPoint] = []
+        for col in 0..<cols {
+            for row in 0..<rows {
+                let pos = CGPoint(x: CGFloat(col) * Snake.blockSize + Snake.blockSize/2,
+                                  y: CGFloat(row) * Snake.blockSize + Snake.blockSize/2)
+                if !snake.body.contains(where: { $0.position == pos }) {
+                    emptyPositions.append(pos)
+                }
+            }
+        }
 
- func start(){
-  timer=Timer.scheduledTimer(withTimeInterval:0.2,repeats:true){_ in self.tick()}
- }
+        guard let position = emptyPositions.randomElement() else { return }
+        food?.removeFromParent()
+        food = Food(position: position)
+        addChild(food)
+    }
 
- func tick(){
-  snake.move(in:self)
+    @objc func updateSnake() {
+        snake.move()
+        if snake.body.first?.position == food.position {
+            snake.grow()
+            spawnFood()
+        }
+        if snake.checkCollision(bounds: frame) {
+            moveTimer?.invalidate()
+            // show death or reset
+        }
+        for segment in snake.body {
+            if segment.parent == nil { addChild(segment) }
+        }
+    }
 
-  if col.food(snake:snake,food:food){
-   GameManager.shared.score+=1
-   GameManager.shared.addCoins(5)
-   food.node.removeFromParent()
-   food.spawn(in:self)
-   power.activateTurbo(scene:self)
-  } else {
-   snake.trim()
-  }
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        let head = snake.body.first!
+        let dx = location.x - head.position.x
+        let dy = location.y - head.position.y
 
-  if let h=snake.body.first{
-   if col.wall(h,self)||col.obstacle(h,obs){ gameOver() }
-  }
- }
-
- func gameOver(){
-  timer?.invalidate()
-  GameCenterManager.shared.score(GameManager.shared.score)
-  removeAllChildren()
-  snake.body.removeAll()
-  obs.nodes.removeAll()
-  GameManager.shared.reset()
-  didMove(to:view!)
- }
-
- override func touchesEnded(_ t:Set<UITouch>,with e:UIEvent?){
-  let l=t.first!.location(in:self)
-  let h=snake.body.first!
-  if abs(l.x-h.position.x)>abs(l.y-h.position.y){
-   snake.dir = l.x>h.position.x ? CGVector(dx:40,dy:0):CGVector(dx:-40,dy:0)
-  } else {
-   snake.dir = l.y>h.position.y ? CGVector(dx:0,dy:40):CGVector(dx:0,dy:-40)
-  }
- }
+        if abs(dx) > abs(dy) {
+            snake.direction = CGVector(dx: dx > 0 ? 1 : -1, dy: 0)
+        } else {
+            snake.direction = CGVector(dx: 0, dy: dy > 0 ? 1 : -1)
+        }
+    }
 }
