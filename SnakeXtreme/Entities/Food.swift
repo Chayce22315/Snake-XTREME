@@ -1,16 +1,8 @@
-import SpriteKit
-
-class Food: SKShapeNode {
-    static let blockSize: CGFloat = 64
+class Food {
+    let node: SKSpriteNode
 
     init(position: CGPoint) {
-        super.init()
-        self.position = position
-        self.path = CGPath(rect: CGRect(x: 0, y: 0, width: Food.blockSize, height: Food.blockSize), transform: nil)
-        self.fillColor = .red
-        self.strokeColor = .clear
-        self.zPosition = 1
+        node = SKSpriteNode(color: .red, size: CGSize(width: 10, height: 10))
+        node.position = position
     }
-
-    required init?(coder aDecoder: NSCoder) { fatalError("init(coder:) not implemented") }
 }
