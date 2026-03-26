@@ -4,11 +4,12 @@ class Food: SKShapeNode {
 
     init(position: CGPoint) {
         super.init()
-        
-        self.path = CGPath(rect: CGRect(x: -10, y: -10, width: 20, height: 20), transform: nil)
+        let size: CGFloat = 20
+        self.path = CGPath(rect: CGRect(x: -size/2, y: -size/2, width: size, height: size), transform: nil)
         self.fillColor = .red
         self.strokeColor = .clear
         self.position = position
+        self.name = "food"
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -16,27 +17,22 @@ class Food: SKShapeNode {
     }
 
     func respawn(in scene: SKScene, avoiding snakeBody: [SKShapeNode]) {
-        let blockSize: CGFloat = 20
-        
-        let cols = Int(scene.size.width / blockSize)
-        let rows = Int(scene.size.height / blockSize)
+        let cols = Int(scene.size.width / 20)
+        let rows = Int(scene.size.height / 20)
 
-        var empty: [CGPoint] = []
+        var validPositions: [CGPoint] = []
 
         for col in 0..<cols {
             for row in 0..<rows {
-                let pos = CGPoint(
-                    x: CGFloat(col) * blockSize + blockSize/2,
-                    y: CGFloat(row) * blockSize + blockSize/2
-                )
-                
+                let pos = CGPoint(x: CGFloat(col) * 20 + 10,
+                                  y: CGFloat(row) * 20 + 10)
                 if !snakeBody.contains(where: { $0.position == pos }) {
-                    empty.append(pos)
+                    validPositions.append(pos)
                 }
             }
         }
 
-        if let newPos = empty.randomElement() {
+        if let newPos = validPositions.randomElement() {
             self.position = newPos
         }
     }
