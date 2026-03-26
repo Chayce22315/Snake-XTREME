@@ -1,16 +1,34 @@
 import SpriteKit
-class TrailSystem{
- func attach(to node:SKNode){
-  let emitter = SKEmitterNode()
-  switch GameManager.shared.equippedTrail{
-  case "fire":emitter.particleColor=.orange;emitter.particleSpeed=120
-  case "neon":emitter.particleColor=.cyan;emitter.particleBlendMode=.add
-  case "toxic":emitter.particleColor=.green
-  case "rainbow":emitter.particleColorSequence=SKKeyframeSequence(keyframeValues:[UIColor.red,UIColor.orange,UIColor.yellow,UIColor.green,UIColor.blue,UIColor.purple],times:[0,0.2,0.4,0.6,0.8,1]);emitter.particleSpeed=80
-  case "lightning":emitter.particleColor=.white;emitter.particleSpeed=200
-  default:emitter.particleColor=.white
-  }
-  emitter.particleBirthRate=80;emitter.particleLifetime=0.4;emitter.particleScale=0.2
-  emitter.targetNode=node.parent;node.addChild(emitter)
- }
+
+class TrailSystem {
+
+    var trailNodes: [SKShapeNode] = []
+    let maxTrailLength: Int
+    let blockSize: CGFloat
+
+    init(maxTrailLength: Int = 20, blockSize: CGFloat = 64) {
+        self.maxTrailLength = maxTrailLength
+        self.blockSize = blockSize
+    }
+
+    func updateTrail(snakeHead: SKShapeNode, parent: SKNode) {
+        let trailNode = SKShapeNode(circleOfRadius: blockSize/4)
+        trailNode.fillColor = .green
+        trailNode.strokeColor = .clear
+        trailNode.position = snakeHead.position
+        trailNode.zPosition = 0
+        parent.addChild(trailNode)
+        trailNodes.append(trailNode)
+
+        if trailNodes.count > maxTrailLength {
+            trailNodes.first?.removeFromParent()
+            trailNodes.removeFirst()
+        }
+    }
+
+    func setTrailColor(_ color: SKColor) {
+        for node in trailNodes {
+            node.fillColor = color
+        }
+    }
 }
