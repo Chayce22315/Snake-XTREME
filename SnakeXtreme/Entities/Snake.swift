@@ -1,23 +1,23 @@
 import SpriteKit
 
 class Snake {
-    static let blockSize: CGFloat = 32
-    
+
     var body: [SKShapeNode] = []
-    var scene: SKScene?
-    var direction = CGVector(dx: 32, dy: 0)
+    var direction = CGVector(dx: 1, dy: 0)
+    
+    let blockSize: CGFloat = 20
 
     var head: SKShapeNode? {
         return body.first
     }
 
     init(scene: SKScene) {
-        self.scene = scene
-
-        let head = SKShapeNode(rectOf: CGSize(width: 28, height: 28))
+        let start = CGPoint(x: scene.size.width / 2, y: scene.size.height / 2)
+        
+        let head = SKShapeNode(rectOf: CGSize(width: blockSize, height: blockSize))
         head.fillColor = .green
-        head.position = CGPoint(x: 160, y: 160)
-
+        head.position = start
+        
         body.append(head)
         scene.addChild(head)
     }
@@ -25,56 +25,72 @@ class Snake {
     func move() {
         guard let head = head else { return }
 
-        let newPosition = CGPoint(
-            x: head.position.x + direction.dx,
-            y: head.position.y + direction.dy
+        let newPos = CGPoint(
+            x: head.position.x + direction.dx * blockSize,
+            y: head.position.y + direction.dy * blockSize
         )
 
-        let previousPositions = body.map { $0.position }
+        var prev = newPos
 
-        body[0].position = newPosition
-
-        for i in 1..<body.count {
-            body[i].position = previousPositions[i - 1]
+        for segment in body {
+            let temp = segment.position
+            segment.position = prev
+            prev = temp
         }
     }
 
     func grow() {
-        guard let last = body.last else { return }
-
-        let newSegment = SKShapeNode(rectOf: CGSize(width: 28, height: 28))
+        guard let tail = body.last else { return }
+        
+        let newSegment = SKShapeNode(rectOf: CGSize(width: blockSize, height: blockSize))
         newSegment.fillColor = .green
-        newSegment.position = last.position
-
+        newSegment.position = tail.position
+        
         body.append(newSegment)
-        scene?.addChild(newSegment)
+        tail.parent?.addChild(newSegment)
     }
 
-    func die() {
-        print("snake died")
+    func consume(food: Food) {
+        grow()
+    }
 
-        for segment in body {
-            segment.removeFromParent()
-        }
-
-        body.removeAll()
+    func collide(with obstacle: SKNode) {
+        // you can expand later (damage, etc.)
     }
 
     func checkCollision(bounds: CGRect) -> Bool {
         guard let head = head else { return false }
 
-        // wall collision
+        // wall
         if !bounds.contains(head.position) {
             return true
         }
 
-        // self collision
+        // self
         for segment in body.dropFirst() {
-            if head.position == segment.position {
+            if segment.position == head.position {
                 return true
             }
         }
 
         return false
+    }
+
+    func reset(in scene: SKScene) {
+        for part in body {
+            part.removeFromParent()
+        }
+        body.removeAll()
+        
+        let start = CGPoint(x: scene.size.width / 2, y: scene.size.height / 2)
+        
+        let head = SKShapeNode(rectOf: CGSize(width: blockSize, height: blockSize))
+        head.fillColor = .green
+        head.position = start
+        
+        body.append(head)
+        scene.addChild(head)
+        
+        direction = CGVector(dx: 1, dy: 0)
     }
 }
