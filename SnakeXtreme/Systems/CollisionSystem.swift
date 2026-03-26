@@ -1,41 +1,36 @@
 import SpriteKit
-import Foundation
 
 class CollisionSystem {
+    let snake: Snake
+    let food: Food
+    let obstacles: [Obstacle]
 
-    var snake: Snake
-    var food: Food
-    var obstacles: [Obstacle]
-
-    init(snake: Snake, food: Food, obstacles: [Obstacle] = []) {
+    init(snake: Snake, food: Food, obstacles: [Obstacle]) {
         self.snake = snake
         self.food = food
         self.obstacles = obstacles
     }
 
-    func update() {
-        checkFoodCollision()
-        checkObstacleCollisions()
-    }
+    func checkCollisions() {
+        guard let head = snake.head else { return }
 
-    private func checkFoodCollision() {
-        // optional chain because snake.head might be nil
-        if let snakeHead = snake.head {
-            if snakeHead.frame.intersects(food.node.frame) {
-                // handle collision in snake/game manager
-                snake.consume(food: food) // replace with your actual method
+        // FOOD COLLISION
+        if head.frame.intersects(food.node.frame) {
+            snake.grow()
+            food.respawn()
+        }
+
+        // OBSTACLE COLLISION
+        for obstacle in obstacles {
+            if head.frame.intersects(obstacle.node.frame) {
+                snake.die()
             }
         }
-    }
 
-    private func checkObstacleCollisions() {
-        guard let snakeHead = snake.head else { return }
-
-        for obstacle in obstacles {
-            // directly use SKShapeNode, no 'guard let'
-            if snakeHead.frame.intersects(obstacle.node.frame) {
-                // handle collision in snake/game manager
-                snake.collide(with: obstacle) // replace with your actual method
+        // SELF COLLISION
+        for segment in snake.body.dropFirst() {
+            if head.frame.intersects(segment.frame) {
+                snake.die()
             }
         }
     }
