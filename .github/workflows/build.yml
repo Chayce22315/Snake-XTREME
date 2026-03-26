@@ -1,0 +1,21 @@
+name: build
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: brew install xcodegen
+    - run: xcodegen generate
+    - run: |
+        xcodebuild -scheme SnakeXtreme -sdk iphoneos -configuration Release -archivePath build/SnakeXtreme.xcarchive archive
+        xcodebuild -exportArchive -archivePath build/SnakeXtreme.xcarchive -exportOptionsPlist exportOptions.plist -exportPath build
+    - run: |
+        cd build
+        zip -r SnakeXtreme.ipa.zip *.ipa
+    - uses: actions/upload-artifact@v4
+      with:
+        name: SnakeXtreme-IPA
+        path: build/SnakeXtreme.ipa.zip

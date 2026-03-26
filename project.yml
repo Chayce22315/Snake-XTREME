@@ -1,0 +1,16 @@
+name: SnakeXtreme
+options:
+  bundleIdPrefix: com.pixelatedstudios
+  deploymentTarget: '16.0'
+  buildSettings:
+    SWIFT_VERSION: 5.8
+targets:
+  SnakeXtreme:
+    type: application
+    platform: iOS
+    sources: [SnakeXtreme]
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.pixelatedstudios.sX
+      CODE_SIGN_STYLE: OFF
+      ENABLE_BITCODE: NO
+      SWIFT_OPTIMIZATION_LEVEL: -O
