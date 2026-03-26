@@ -1,51 +1,51 @@
-name: Build SnakeXtreme iOS with XcodeGen
+name: Build SnakeXtreme
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-latest
+
     steps:
+      # 1️⃣ get the code
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: |
-          # install ruby & cocoapods
-          brew install ruby
-          gem install cocoapods
-          # install xcodegen
-          brew install xcodegen
+      # 2️⃣ install xcodegen
+      - name: Install XcodeGen
+        run: brew install xcodegen
 
+      # 3️⃣ generate the Xcode project
       - name: Generate Xcode project
         run: |
           xcodegen generate --spec "${{ github.workspace }}/project.yml" --quiet
 
-      - name: Install pods
+      # 4️⃣ build & archive
+      - name: Build & Archive
         run: |
-          pod install --repo-update
-
-      - name: Build and Archive
-        run: |
+          mkdir -p build
           xcodebuild archive \
-            -workspace "SnakeXtreme.xcworkspace" \
+            -project "${{ github.workspace }}/SnakeXtreme.xcodeproj" \
             -scheme "SnakeXtreme" \
             -configuration Release \
-            -archivePath ${{ github.workspace }}/build/SnakeXtreme.xcarchive \
+            -archivePath "${{ github.workspace }}/build/SnakeXtreme.xcarchive" \
             INFOPLIST_FILE="${{ github.workspace }}/SnakeXtreme/Info.plist"
 
-      - name: Export .ipa
+      # 5️⃣ export ipa
+      - name: Export IPA
         run: |
           xcodebuild -exportArchive \
-            -archivePath ${{ github.workspace }}/build/SnakeXtreme.xcarchive \
-            -exportPath ${{ github.workspace }}/build \
-            -exportOptionsPlist ${{ github.workspace }}/ExportOptions.plist
+            -archivePath "${{ github.workspace }}/build/SnakeXtreme.xcarchive" \
+            -exportPath "${{ github.workspace }}/build" \
+            -exportOptionsPlist "${{ github.workspace }}/ExportOptions.plist"
 
+      # 6️⃣ upload ipa as artifact
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
           name: SnakeXtreme.ipa
-          path: ${{ github.workspace }}/build/SnakeXtreme.ipa
+          path: "${{ github.workspace }}/build/SnakeXtreme.ipa"
