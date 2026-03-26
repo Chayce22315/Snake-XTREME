@@ -1,7 +1,7 @@
 import SpriteKit
 
 class GameScene: SKScene {
-    let snake = Snake(startPosition: CGPoint(x: 512, y: 512))
+    var snake: Snake!
     var food: Food!
     var moveTimer: Timer?
 
