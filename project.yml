@@ -3,24 +3,24 @@ name: SnakeXtreme
 options:
   bundleIdPrefix: com.pixelatedstudios.sx
   deploymentTarget:
-    iOS: '18.0'
+    iOS: "18.0"
 
 configs:
   Debug:
     buildSettings:
-      SWIFT_OPTIMIZATION_LEVEL: '-Onone'
+      SWIFT_OPTIMIZATION_LEVEL: "-Onone"
   Release:
     buildSettings:
-      SWIFT_OPTIMIZATION_LEVEL: '-O'
+      SWIFT_OPTIMIZATION_LEVEL: "-O"
 
 targets:
   SnakeXtreme:
     type: application
     platform: iOS
-    deploymentTarget: '18.0'
+    deploymentTarget: "18.0"
 
     sources:
-      - path: .
+      - path: SnakeXtreme
         includes:
           - "**/*.swift"
 
@@ -34,9 +34,3 @@ targets:
         CODE_SIGNING_ALLOWED: NO
         CODE_SIGN_IDENTITY: ""
         SKIP_INSTALL: NO
-
-schemes:
-  SnakeXtreme:
-    build:
-      targets:
-        SnakeXtreme: all
