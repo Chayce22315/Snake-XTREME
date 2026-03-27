@@ -25,9 +25,15 @@ class GameScene: SKScene {
     let cam = SKCameraNode()
 
     override func didMove(to view: SKView) {
+        print("scene loaded ✅")
+
         backgroundColor = .black
 
+        // 🔥 CRITICAL FIX
+        anchorPoint = CGPoint(x: 0.5, y: 0.5)
+
         camera = cam
+        cam.position = .zero
         addChild(cam)
 
         createSnake()
@@ -104,7 +110,6 @@ class GameScene: SKScene {
     // MARK: - Collision
 
     func checkCollision() {
-        // food
         if snake[0].frame.intersects(food.frame) {
             growSnake()
             spawnFood()
@@ -113,14 +118,12 @@ class GameScene: SKScene {
             updateScore()
         }
 
-        // self collision
         for i in 1..<snake.count {
             if snake[0].frame.intersects(snake[i].frame) {
                 die()
             }
         }
 
-        // wall collision
         if abs(snake[0].position.x) > size.width/2 ||
            abs(snake[0].position.y) > size.height/2 {
             die()
@@ -130,8 +133,6 @@ class GameScene: SKScene {
     func die() {
         if isDead { return }
         isDead = true
-
-        GameCenterManager.shared.submitScore(score)
 
         screenShake()
         showRetry()
