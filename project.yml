@@ -20,9 +20,9 @@ targets:
     deploymentTarget: '18.0'
 
     sources:
-      - path: SnakeXtreme
-        excludes:
-          - "**/*.plist"   # prevent plist confusion
+      - path: .
+        includes:
+          - "**/*.swift"
 
     info:
       path: SnakeXtreme/Info.plist
