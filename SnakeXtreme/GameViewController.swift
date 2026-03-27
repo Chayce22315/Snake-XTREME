@@ -1,13 +1,16 @@
 import UIKit
 import SpriteKit
-class GameViewController:UIViewController{
- override func viewDidLoad(){
-  super.viewDidLoad()
-  if let v=self.view as? SKView{
-   let scene=MainMenuScene(size:v.bounds.size)
-   scene.scaleMode = .resizeFill
-   v.presentScene(scene)
-  }
- }
- override var prefersStatusBarHidden:Bool{true}
+
+class GameViewController: UIViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        let scene = GameScene(size: view.bounds.size)
+        let skView = SKView(frame: view.bounds)
+        skView.presentScene(scene)
+        skView.ignoresSiblingOrder = true
+
+        view.addSubview(skView)
+    }
 }
