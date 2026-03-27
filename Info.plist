@@ -4,7 +4,7 @@
 <dict>
 
     <key>CFBundleIdentifier</key>
-    <string>com.pixelatedstudios+.SnakeXtreme</string>
+    <string>com.pixelatedstudios.sx</string>
 
     <key>CFBundleName</key>
     <string>SnakeXtreme</string>
