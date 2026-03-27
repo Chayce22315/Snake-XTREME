@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Debug Swift Files
+      - name: Show Swift files (debug)
         run: |
           echo "=== SWIFT FILES ==="
           find . -name "*.swift"
@@ -20,10 +20,10 @@ jobs:
       - name: Install XcodeGen
         run: brew install xcodegen
 
-      - name: Generate Xcode Project
+      - name: Generate project
         run: xcodegen generate
 
-      - name: Build .app (no signing)
+      - name: Clean + Build (FORCE REAL COMPILE)
         run: |
           mkdir -p build
           xcodebuild \
@@ -31,13 +31,16 @@ jobs:
             -scheme SnakeXtreme \
             -configuration Release \
             -destination 'generic/platform=iOS' \
-            build \
-            CODE_SIGNING_ALLOWED=NO
+            clean build \
+            CODE_SIGNING_ALLOWED=NO \
+            SKIP_INSTALL=NO \
+            SWIFT_ACTIVE_COMPILATION_CONDITIONS=DEBUG
 
-      - name: Copy .app
+      - name: Locate .app
         run: |
           APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "SnakeXtreme.app" -type d | head -n 1)
           echo "APP FOUND AT: $APP_PATH"
+          ls -lh "$APP_PATH"
           cp -R "$APP_PATH" build/
 
       - name: Upload .app
