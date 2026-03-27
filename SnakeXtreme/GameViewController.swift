@@ -6,7 +6,7 @@ class GameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let skView = SKView(frame: view.frame)
+        let skView = SKView(frame: view.bounds)
         view = skView
 
         let scene = GameScene(size: view.bounds.size)
