@@ -1,18 +1,25 @@
 import GameKit
 
-class GameCenterManager: NSObject, GKGameCenterControllerDelegate {
+class GameCenterManager {
     static let shared = GameCenterManager()
-    
-    func authenticateLocalPlayer() {
-        let localPlayer = GKLocalPlayer.local
-        localPlayer.authenticateHandler = { vc, error in
+
+    func authenticate() {
+        let player = GKLocalPlayer.local
+        player.authenticateHandler = { vc, error in
             if let vc = vc {
-                // present Game Center login
+                UIApplication.shared.windows.first?.rootViewController?.present(vc, animated: true)
             }
         }
     }
-    
-    func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
-        gameCenterViewController.dismiss(animated: true)
+
+    func submitScore(_ score: Int) {
+        let scoreReporter = GKScore(leaderboardIdentifier: "snake_highscore")
+        scoreReporter.value = Int64(score)
+
+        GKScore.report([scoreReporter]) { error in
+            if let error = error {
+                print("GC Error:", error)
+            }
+        }
     }
 }
